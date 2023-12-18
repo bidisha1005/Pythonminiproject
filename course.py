@@ -1,6 +1,7 @@
 from tkinter import *
 from PIL import Image,ImageTk  #importing pillow module
-from tkinter import ttk
+from tkinter import ttk,messagebox
+import sqlite3
 class CourseClass:
     def __init__(self,root):
         self.root=root
@@ -24,16 +25,22 @@ class CourseClass:
         lbl_description= Label(self.root, text='Description', font=('Founders Grostesk Text', 15, 'bold'),bg='white').place(x=10, y=180)
 
         #entry fields
-        self.txt_courseName=Entry(self.root,textvariable=self.var_course,font=('Founders Grostesk Text',15,'bold'),bg='#C2D9FF').place(x=150,y=60,width=200)
+        self.txt_courseName=Entry(self.root,textvariable=self.var_course,font=('Founders Grostesk Text',15,'bold'),bg='#C2D9FF')
+        self.txt_courseName.place(x=150,y=60,width=200)
         txt_duration= Entry(self.root,textvariable=self.var_duration, font=('Founders Grostesk Text', 15, 'bold'),bg='#C2D9FF').place(x=150, y=100,width=200)
         txt_charges= Entry(self.root,textvariable=self.var_charges, font=('Founders Grostesk Text', 15, 'bold'),bg='#C2D9FF').place(x=150, y=140,width=200)
-        self.txt_description= Text(self.root, font=('Founders Grostesk Text', 15, 'bold'),bg='#C2D9FF').place(x=150, y=180,width=500,height=130)
+        self.txt_description= Text(self.root, font=('Founders Grostesk Text', 15, 'bold'),bg='#C2D9FF')
+        self.txt_description.place(x=150, y=180,width=500,height=130)
 
         #buttons
-        self.btn_add=Button(self.root,text='Save',font=('Founders Grostesk Text',15,'bold'),bg='#8E8FFA',fg='black',cursor='hand 2').place(x=150,y=400,width=110,height=40)
-        self.btn_update= Button(self.root, text='Update', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2').place(x=270,y=400, width=110, height=40)
-        self.btn_delete= Button(self.root, text='Delete', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2').place(x=390,y=400, width=110, height=40)
-        self.btn_clear= Button(self.root, text='Clear', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2').place(x=510,y=400, width=110, height=40)
+        self.btn_add=(Button(self.root,text='Save',font=('Founders Grostesk Text',15,'bold'),bg='#8E8FFA',fg='black',cursor='hand 2',command=self.add))
+        self.btn_add.place(x=150,y=400,width=110,height=40)
+        self.btn_update= Button(self.root, text='Update', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2')
+        self.btn_update.place(x=270,y=400, width=110, height=40)
+        self.btn_delete= Button(self.root, text='Delete', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2')
+        self.btn_delete.place(x=390,y=400, width=110, height=40)
+        self.btn_clear= Button(self.root, text='Clear', font=('Founders Grostesk Text', 15, 'bold'), bg='#8E8FFA',fg='black', cursor='hand 2')
+        self.btn_clear.place(x=510,y=400, width=110, height=40)
 
         #search panel
         self.var_search=StringVar()
@@ -47,7 +54,9 @@ class CourseClass:
 
         scrolly=Scrollbar(self.C_Frame,orient=VERTICAL)
         scrollx=Scrollbar(self.C_Frame,orient=HORIZONTAL)
+
         self.CourseTable=ttk.Treeview(self.C_Frame,columns=('cid','name','duration','charges','description'),xscrollcommand=scrollx.set,yscrollcommand=scrolly.set)
+
         scrollx.pack(side=BOTTOM,fill=X)
         scrolly.pack(side=RIGHT,fill=Y)
         scrollx.config(command=self.CourseTable.xview)
@@ -68,6 +77,54 @@ class CourseClass:
         self.CourseTable.column('description',width=150)
 
         self.CourseTable.pack(fill=BOTH,expand=1)
+        self.CourseTable.bind("<ButtonRelease-1>",self.get_data)   #bind hels in performaning an event
+        self.show()
+
+#======================================================================================
+
+    def get_data(self,ev):
+        r=self.CourseTable.focus()
+        content=self.CourseTable.item(r)
+        row=content["values"]
+        print(row)
+    def add(self):
+        con = sqlite3.connect(database='Pythonminiproject')
+        cur = con.cursor()
+        try:
+            if self.var_course.get()=="":
+                messagebox.showerror('Error','Course name should be required',parent=self.root)
+            else:
+                cur.execute('select * from course where name=?',(self.var_course.get(),))
+                row=cur.fetchone()
+                if row!=None:
+                    messagebox.showerror('Error', 'Course name already exists', parent=self.root)
+                else:
+                    cur.execute('insert into course (name,duration,charges,description) values(?,?,?,?)',(
+                                            self.var_course.get(),
+                                            self.var_duration.get(),
+                                            self.var_charges.get(),
+                                            self.txt_description.get('1.0',END)
+                    ))
+                    con.commit()
+                    messagebox.showinfo('Success','Course added successfully',parent=self.root)
+                    self.show()
+        except Exception as ex:
+            messagebox.showerror('Error',f'Error due to {str(ex)}')
+
+
+    def show(self):
+        con = sqlite3.connect(database='Pythonminiproject')
+        cur = con.cursor()
+        try:
+            cur.execute('select * from course ')
+            rows=cur.fetchall()
+            self.CourseTable.delete(*self.CourseTable.get_children())
+            for row in rows:
+                self.CourseTable.insert('',END,values=row) #all the data in rows will form in a list
+
+        except Exception as ex:
+            messagebox.showerror('Error',f'Error due to {str(ex)}')
+
 
 if __name__=="__main__":
     root=Tk()
