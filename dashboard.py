@@ -1,6 +1,8 @@
 from tkinter import *
 from PIL import Image,ImageTk  #importing pillow module
 from course import CourseClass
+from student import StudentClass
+from result import ResultClass
 class RMS:
     def __init__(self,root):
         self.root=root
@@ -18,8 +20,8 @@ class RMS:
 
         #adding buttons
         btn_course=Button(M_Frame,text='Course',font=('Founders Grotesk Text',15,'bold'),bg='#190482',fg='black',cursor='hand 2',command=self.add_course).place(x=20,y=5,width=200,height=40)
-        btn_student = Button(M_Frame, text='Student', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2').place(x=240, y=5, width=200, height=40)
-        btn_result= Button(M_Frame, text='Result', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2').place(x=460, y=5, width=200, height=40)
+        btn_student = Button(M_Frame, text='Student', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2',command=self.add_student).place(x=240, y=5, width=200, height=40)
+        btn_result= Button(M_Frame, text='Result', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2',command=self.add_result).place(x=460, y=5, width=200, height=40)
         btn_view = Button(M_Frame, text='View', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2').place(x=680, y=5, width=200, height=40)
         btn_logout = Button(M_Frame, text='Logout', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482', fg='black', cursor='hand 2').place(x=900, y=5, width=200, height=40)
         btn_exit = Button(M_Frame, text='Exit', font=('Founders Grotesk Text', 15, 'bold'), bg='#190482',fg='black', cursor='hand 2').place(x=1120, y=5, width=200, height=40)
@@ -48,6 +50,14 @@ class RMS:
     def add_course(self):
         self.new_win=Toplevel(self.root)
         self.new_obj=CourseClass(self.new_win )
+
+    def add_student(self):
+        self.new_win=Toplevel(self.root)
+        self.new_obj=StudentClass(self.new_win )
+
+    def add_result(self):
+        self.new_win=Toplevel(self.root)
+        self.new_obj=ResultClass(self.new_win )
 
 if __name__=="__main__":
     root=Tk()

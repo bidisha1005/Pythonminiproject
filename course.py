@@ -101,7 +101,7 @@ class CourseClass:
                 cur.execute('select * from course where name=?', (self.var_course.get(),))
                 row = cur.fetchone()
                 if row == None:
-                    messagebox.showerror('Error', 'Please select course fromt the list', parent=self.root)
+                    messagebox.showerror('Error', 'Please select course from the list', parent=self.root)
                 else:
                     op=messagebox.askyesno('Confirm','Do you want to proceed',parent=self.root)
                     if op ==True:
